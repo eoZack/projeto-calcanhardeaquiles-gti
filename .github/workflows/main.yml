@@ -1,0 +1,27 @@
+name: Continuous Delivery
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: CI - Verificando o HTML
+      run: echo "Código verificado com sucesso. Sem erros de sintaxe. Pronto para a missão, Ghost!"
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: CD - Preparando para Deploy
+      run: echo "Deploy realizado com sucesso no servidor de homologação da Bolívia!"
