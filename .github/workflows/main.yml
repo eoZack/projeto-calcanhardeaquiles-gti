@@ -1,4 +1,4 @@
-name: Continuous Delivery
+name: Continuous Integration - Operacao
 
 on:
   push:
@@ -7,21 +7,32 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-    name: build
+  testes:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: CI - Verificando o HTML
-      run: echo "Código verificado com sucesso. Sem erros de sintaxe. Pronto para a missão, Ghost!"
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Executar Testes Unitarios
+      run: python -m unittest test_missao.py
 
-  deploy:
-    name: deploy
-    needs: build
+  alerta:
+    name: Disparar Alerta
     runs-on: ubuntu-latest
+    needs: testes
+    if: failure() # Só roda se os testes falharem e a missão der ruim
+    permissions:
+      issues: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: CD - Preparando para Deploy
-      run: echo "Deploy realizado com sucesso no servidor de homologação da Bolívia!"
+    - name: Criar Alerta de Falha
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh issue create --title "🚨 ALERTA: Falha na Missão CI/CD" --body "Atenção Ghost, os testes unitários falharam. O código não foi aprovado."
