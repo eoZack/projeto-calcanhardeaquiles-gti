@@ -6,9 +6,14 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Permissão global para não ter erro
+permissions:
+  issues: write
+  contents: read
+
 jobs:
-  testes:
-    name: Run Unit Tests
+  testes_e_alerta:
+    name: Run Tests and Alert
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -22,17 +27,8 @@ jobs:
     - name: Executar Testes Unitarios
       run: python -m unittest test_missao.py
 
-  alerta:
-    name: Disparar Alerta
-    runs-on: ubuntu-latest
-    needs: testes
-    if: failure() # Só roda se os testes falharem e a missão der ruim
-    permissions:
-      issues: write
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
     - name: Criar Alerta de Falha
+      if: failure() # Roda imediatamente se o passo de cima quebrar
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: gh issue create --title "🚨 ALERTA: Falha na Missão CI/CD" --body "Atenção Ghost, os testes unitários falharam. O código não foi aprovado."
